@@ -1,0 +1,32 @@
+# Context: Industrial Gauge Calibration Database Pipeline
+
+We are building a local data warehouse automation pipeline for manufacturing gauge calibrations. Non-technical workers fill out standardized Excel sheets (or CSV files). A Python script parses these files and uploads the metrics into a local PostgreSQL database container ("CalTest"), which is then displayed via a user-friendly Streamlit web app for auditing.
+
+To scale the system to other manufacturing parts, we need to design new Excel templates that maintain a 1-to-1 match with our automated PostgreSQL schemas.
+
+---
+
+## 📐 Layout Architecture Rules
+
+When designing new part templates, follow these strict constraints to avoid breaking the automated Python migration script:
+1. **Row 1 is the Master Header:** Row 1 must contain the exact column names. No blank spaces are allowed in the header row—use lowercase text with underscores only (e.g., `gage_type`, `serial_number`).
+2. **Strict Serial Number Location:** Every sheet must contain a `serial_number` column. This acts as our primary key/unique identifier for SQL UPSERT logic.
+3. **Data Type Consistency:** Measurement columns must contain pure numeric values (floats/decimals). Any string notes or text like "Pass/Fail" must go into a dedicated text column (like `status` or `notes`) to avoid SQL type-casting crashes.
+
+---
+
+## 🗂️ Target Core Blueprint Reference (0-Indexed Column Map)
+
+Use this structural map of our existing, verified part layout to design or match identical processing logic for upcoming part families:
+
+* **Columns 0 - 5 (Logistics):** `gage_type` (0), `sn_gage_used_to_cal` (1), `graduation` (2), `procedure_name` (3), `procedure_number` (4), `date_calibrated` (5)
+* **Columns 6 - 9 (Asset Identity):** `serial_number` (6), `manufacturer` (7), `model_number` (8), `calibrated_by` (9)
+* **Columns 10 - 13 (Checkpoint A Metrics):** `checkpoint_a_value` (10), `a_1` (11), `a_2` (12), `a_3` (13)
+* **Columns 14 - 17 (Checkpoint B Metrics):** `checkpoint_b_value` (14), `b_1` (15), `b_2` (16), `b_3` (17)
+* **Columns 18 - 21 (Checkpoint C Metrics):** `checkpoint_c_value` (18), `c_1` (19), `c_2` (20), `c_3` (21)
+* **Columns 22 - 23 (Outcomes):** `status` (22), `notes` (23)
+
+---
+
+## 🎯 Task Request
+Using the rules and column logic above, help me generate a new automated database creation schema, data parsing rules, or interface templates for our next manufacturing part family.
